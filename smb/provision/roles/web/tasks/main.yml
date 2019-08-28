@@ -1,0 +1,75 @@
+---
+# tasks file for web
+
+# Install APACHE
+- name: Install apache server
+  apt:
+    name:
+      - apache2
+
+- name: Remove default VirtualHost
+  file:
+    path: /etc/apache2/sites-enabled/000-default.conf
+    state: absent
+  notify:
+    - restart apache2
+
+- name: Add VirtualHost
+  template:
+    src: "{{ vhostName }}.conf.j2"
+    dest: /etc/apache2/sites-available/{{ vhostName }}.conf
+  notify:
+    - restart apache2
+
+
+- name: Enable VirtualHost {{ vhostName }}
+  command: a2ensite {{ vhostName }}
+  args:
+    creates: /etc/apache2/sites-enabled/{{ vhostName }}.conf
+  notify:
+    - restart apache2
+
+# install MYSQL
+- name: Define MariaDB root password
+  shell: "{{ item }}"
+  with_items:
+    - "sudo echo mysql-server mysql-server/root_password password root | sudo debconf-set-selections"
+    - "sudo echo mysql-server mysql-server/root_password_again password root | sudo debconf-set-selections"
+
+- name: Install MariaDB Server
+  apt:
+    name: mariadb-server
+
+- name: Create database user
+  mysql_user:
+    name: "{{ database_user }}"
+    password: "{{ database_pass }}"
+    priv: '*.*:ALL,GRANT'
+    state: present
+
+
+# install PHP
+- name: Install PHP
+  apt:
+    name:
+      - libapache2-mod-php
+      - php
+      - php-curl
+      - php-gd
+      - php-json
+      - php-mbstring
+      - php-mysql
+      - php-xml
+  notify:
+    - restart apache2
+
+- name: Enable required apache modules
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - expires
+    - headers
+    - http2
+    - rewrite
+    - ssl

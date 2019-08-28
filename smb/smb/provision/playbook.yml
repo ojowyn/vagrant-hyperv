@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: yes
+  become_user: root
+  roles:
+    - common
+    - web
+
+  # déclaration de la variables globales
+  vars:
+    email: email@domain.fr
+    http_port: 80
+    domain: lepotiron.local
+    vhostName: lepotiron.local
+    mysqlRootPassord: root
+    database_user: user
+    database_pass: user
+
+  # ici, on demande directement à l'exécution de renseigner une variable
+  vars_prompt:
+    - name: "root"
+      prompt: "Enter your MySQL root Password"

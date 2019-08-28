@@ -1,0 +1,33 @@
+---
+# Mise à jour du système
+- name: Update & upgrade Systeme
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install required packages
+  apt:
+    name:
+      - fail2ban
+      - htop
+      - vim
+      - man
+      - manpages-fr
+      - manpages-fr-extra
+      - manpages-fr-dev
+      - bash-completion
+      - locales
+      - python-pip
+      - wget
+      - zip
+      - bzip2
+      - lsof
+      - sudo
+      - tree
+      - ccze
+      - vim-common
+      - screen
+      - curl
+      - git
+      - unzip
+      - python-mysqldb
